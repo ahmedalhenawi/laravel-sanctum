@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Product;
 use App\Requests\Users\CreateUserRequest;
 use App\Requests\Users\LoginUserRequest;
 use App\Services\UserServices;
@@ -34,13 +35,25 @@ class RegisterController extends BaseController
         $request = $loginUserRequest->request();
         if(Auth::attempt(['email'=>$request->email , 'password'=> $request->password] ,1)){
             $user = Auth::user();
-            $success['token'] =  $user->createToken(env('APP_NAME'))->plainTextToken ;
+            $success['token'] =  $user->createToken('token' , ['api:products'])->plainTextToken ;
             $success['name'] = $user->name;
             return $this->apiResponse($success , 'user login successfully');
         }else{
             return $this->apiResponse('unauthorized' , 'failed login' , 401);
 
         }
+
+    }
+
+    public function products(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($user->tokenCan('api:products')) {
+            $products = Product::get();
+            return $this->apiResponse($products);
+        }
+        return $this->apiResponse('not authorized');
 
     }
 }

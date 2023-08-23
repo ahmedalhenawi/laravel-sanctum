@@ -20,8 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::controller(RegisterController::class)->group(function (){
+    Route::get("products" , 'products')->name('products')->middleware('auth:sanctum');
     Route::post("login" , 'login')->name('login');
-    Route::get("login" , 'login')->name('login');
     Route::post("register" , 'register');
 });
 
